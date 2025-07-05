@@ -1,6 +1,11 @@
 from django.apps import AppConfig
-
+import mongoengine
 
 class InventoryConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
     name = 'inventory'
+
+    def ready(self):
+        mongoengine.connect(
+            db='inventory',   # your db name
+            host='mongodb://localhost:27017/inventory'
+        )

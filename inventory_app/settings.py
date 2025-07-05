@@ -41,10 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'inventory',
+    'corsheaders',
+
+    'rest_framework',
+    # 'inventory',
+    'inventory.apps.InventoryConfig',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,16 +82,35 @@ WSGI_APPLICATION = 'inventory_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-   'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'inventory',
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': os.getenv('MONGO_URI'),
-        }
-    }
-}
+# mongoengine.connect(
+#     db='mydb',
+#     host='mongodb://localhost:27017'
+# )
+
+# DATABASES = {
+#    'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'sample',
+#         'ENFORCE_SCHEMA': False,
+#         'CLIENT': {
+#             'host': os.getenv('MONGO_URI'),
+#         }
+#     }
+
+#     # 'default': {
+#     #     'ENGINE': 'djongo',
+#     #     'NAME': 'books_db',
+#     # }
+# }
+
+
+# from pymongo import MongoClient
+
+# client = MongoClient()
+# db = client['mydb']
+# if db:
+#     print('db', db)
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
