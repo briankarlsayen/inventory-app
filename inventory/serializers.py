@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Item
+from .models import Category, Item, User
 
 class CategorySerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
@@ -55,3 +55,44 @@ class ItemSerializer(serializers.Serializer):
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.save()
         return instance
+    
+
+class UserDisplaySerializer(serializers.Serializer):
+    id= serializers.CharField(read_only=True)
+    name= serializers.CharField(read_only=True)
+    username= serializers.CharField(read_only=True)
+    role= serializers.IntegerField(read_only=True)
+
+class UserSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    name = serializers.CharField(required=True)
+    username = serializers.CharField(read_only=True)
+    role = serializers.IntegerField(default=2, read_only=True)
+    is_active = serializers.BooleanField(required=False, default=True)
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.username = validated_data.get('username', instance.username)
+        instance.role = validated_data.get('role', instance.role)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.save()
+        return instance
+
+class RegisterSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    role = serializers.ChoiceField(default=2, choices=[1,2])
+
+    def create(self, validated_data):
+        raw_password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(raw_password)
+        return user.save()
+    
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    role = serializers.IntegerField(read_only=True, required=False)
+    
+    
