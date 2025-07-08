@@ -17,24 +17,33 @@ class CategorySerializer(serializers.Serializer):
         instance.save()
         return instance
     
+class CategoryDisplaySerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    
 class ItemSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(required=True)
-    category = serializers.CharField(required=True)
+    category = serializers.CharField(required=True, write_only=True)
+    category_details = CategoryDisplaySerializer(read_only=True)
     unit = serializers.CharField(required=False, allow_blank=True)
     reorder_level=serializers.IntegerField(required=False, default=0)
     is_shown = serializers.BooleanField(required=False, default=True)
     is_active = serializers.BooleanField(required=False, default=True)
 
+
+    def to_representation(self, instance):
+        """Customize the output to include nested category details."""
+        ret = super().to_representation(instance)
+        ret['category_details'] = CategoryDisplaySerializer(instance.category).data
+        return ret
+
     def create(self, validated_data):
-        print('validated_data', validated_data.get('category'))
         category_id = validated_data.get('category')
         category = Category.objects.get(id=category_id)
-        # print('category', **validated_data)
         validated_data['category'] = category
 
         item = Item(**validated_data)
-        print('item', item)
         return item.save()
     def update(self, instance, validated_data):
         if 'category' in validated_data:
