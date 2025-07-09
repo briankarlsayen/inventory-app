@@ -35,3 +35,14 @@ class User(Document):
     def check_password(self, raw_password):
         """Verify the password."""
         return bcrypt.checkpw(raw_password.encode('utf-8'), self.password.encode('utf-8'))
+
+class Stock(Document):
+    type=StringField(required=True, max_length=10, default="entry") # entry | usage
+    item = ReferenceField(Item, required=True)
+    quantity = IntField()
+    remarks = StringField(required=False, max_length=255)
+    usage_type = StringField(required=False, max_length=50) # sale | waste | internal use
+    is_active=BooleanField(default=True)
+    date = DateTimeField(default=datetime.now(timezone.utc))
+    created_at = DateTimeField(default=datetime.now(timezone.utc))
+    updated_at = DateTimeField(default=datetime.now(timezone.utc))

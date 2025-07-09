@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
-from .models import Category, Item, User
-from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer
+from .models import Category, Item, User, Stock
+from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -176,3 +176,51 @@ class LoginView(APIView):
             user_data = UserDisplaySerializer(user).data
             return Response({'message': 'Login successful', 'data': user_data}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
+    
+class StockListCreate(APIView):
+    def get(self, request):
+        item = Stock.objects(is_active=True)
+        serializer = StockSerializer(item, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = StockSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class StockDetails(APIView):
+    def get_object(self, pk):
+        try:
+            return Stock.objects.get(id=pk)
+        except Stock.DoesNotExist:
+            return None
+        except:
+            return None
+        
+    def get(self, request, pk):
+        stock = self.get_object(pk=pk)
+        if not stock:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = StockSerializer(stock)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        stock = self.get_object(pk)
+        if not stock:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = StockSerializer(stock, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        stock = self.get_object(pk=pk)
+        if not stock:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        stock.is_active = False
+        stock.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
