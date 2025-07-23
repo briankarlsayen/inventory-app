@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField, BooleanField, DateTimeField, ReferenceField
+from mongoengine import Document, StringField, IntField, BooleanField, DateTimeField, ReferenceField, FloatField
 from datetime import datetime, timezone
 import bcrypt
 
@@ -46,3 +46,15 @@ class Stock(Document):
     date = DateTimeField(default=datetime.now(timezone.utc))
     created_at = DateTimeField(default=datetime.now(timezone.utc))
     updated_at = DateTimeField(default=datetime.now(timezone.utc))
+
+class Logs(Document):
+    method = StringField(required=True, max_length=10)
+    path = StringField()
+    query_params = StringField()
+    body = StringField()
+    remote_addr = StringField()
+    status_code = IntField()
+    response_body = StringField()
+    started_at = DateTimeField(default=datetime.now(timezone.utc))
+    finished_at = DateTimeField()
+    duration_ms = FloatField()

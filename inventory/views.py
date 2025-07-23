@@ -223,4 +223,5 @@ class StockDetails(APIView):
             return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
         stock.is_active = False
         stock.save()
+        
         return Response(status=status.HTTP_204_NO_CONTENT)
