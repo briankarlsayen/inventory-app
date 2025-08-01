@@ -55,7 +55,6 @@ class ItemSerializer(serializers.Serializer):
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.save()
         return instance
-    
 
 class UserDisplaySerializer(serializers.Serializer):
     id= serializers.CharField(read_only=True)

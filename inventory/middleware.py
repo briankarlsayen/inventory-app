@@ -1,8 +1,9 @@
 import time
 import json
 from django.utils.deprecation import MiddlewareMixin
-from .models import Logs
+from .models import Logs, User
 from django.utils.timezone import now
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class RequestLoggingMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -52,3 +53,15 @@ class RequestLoggingMiddleware(MiddlewareMixin):
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0]
         return request.META.get("REMOTE_ADDR")
+    
+
+class CustomJWTAuthentication(JWTAuthentication):
+    def get_user(self, validated_token):
+        user_id = validated_token.get('user_id')
+        print('user_id', user_id)
+
+        try:
+            # Use this if you use MongoEngine or ObjectId string keys
+            return User.objects.get(id=str(user_id))
+        except User.DoesNotExist:
+            return None

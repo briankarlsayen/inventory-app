@@ -4,6 +4,9 @@ from .models import Category, Item, User, Stock
 from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -14,6 +17,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     
 
 class CategoryListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         category = Category.objects(is_active = True)
         serializer = CategorySerializer(category, many=True)
@@ -27,6 +32,8 @@ class CategoryListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CategoryDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Category.objects.get(id=pk)
@@ -63,6 +70,8 @@ class CategoryDetails(APIView):
     
 
 class ItemListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         item = Item.objects(is_active=True)
         serializer = ItemSerializer(item, many=True)
@@ -76,6 +85,8 @@ class ItemListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ItemDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Item.objects.get(id=pk)
@@ -110,12 +121,16 @@ class ItemDetails(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class UserList(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = User.objects(is_active=True)
         serializer = UserDisplaySerializer(user, many=True)
         return Response(serializer.data)
     
 class UserDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return User.objects.get(id=pk)
@@ -149,7 +164,6 @@ class UserDetail(APIView):
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -162,7 +176,6 @@ class RegisterView(APIView):
             return Response({'message': 'Success'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# add jwt
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -173,11 +186,19 @@ class LoginView(APIView):
         password = serializer.validated_data['password']
         user = User.objects(username=username, is_active=True).first()
         if user and user.check_password(password):
-            user_data = UserDisplaySerializer(user).data
-            return Response({'message': 'Login successful', 'data': user_data}, status=status.HTTP_200_OK)
+            refresh = RefreshToken.for_user(user)
+            login_data = {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }
+            # login_data (refresh).data
+            # user_data = UserDisplaySerializer(user).data
+            return Response({'message': 'Login successful', 'data': login_data}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
     
 class StockListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         item = Stock.objects(is_active=True)
         serializer = StockSerializer(item, many=True)
@@ -192,6 +213,8 @@ class StockListCreate(APIView):
     
 
 class StockDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Stock.objects.get(id=pk)

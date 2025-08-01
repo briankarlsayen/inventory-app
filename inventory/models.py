@@ -26,6 +26,13 @@ class User(Document):
     password = StringField(required=True, max_length=255)
     role = IntField(default=2, choices=[1,2])
     is_active = BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_authenticated(self):
+        return True  # or return self.authenticated if you track it manually
     
     def set_password(self, raw_password):
         """Hash & set the password."""
