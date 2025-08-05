@@ -95,6 +95,7 @@ class LoginSerializer(serializers.Serializer):
     role = serializers.IntegerField(read_only=True, required=False)
     
 class ItemDisplaySerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
     name = serializers.CharField(read_only=True)
     unit = serializers.CharField(read_only=True)
     reorder_level = serializers.IntegerField(read_only=True)
@@ -110,7 +111,6 @@ class StockSerializer(serializers.Serializer):
     is_active = serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
-
 
     def to_representation(self, instance):
         """Customize the output to include nested category details."""

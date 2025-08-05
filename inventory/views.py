@@ -193,14 +193,14 @@ class LoginView(APIView):
             }
             # login_data (refresh).data
             # user_data = UserDisplaySerializer(user).data
-            return Response({'message': 'Login successful', 'data': login_data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Login successful', 'access': login_data['access'], 'refresh': login_data['refresh']}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
     
 class StockListCreate(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        item = Stock.objects(is_active=True)
+        item = Stock.objects(is_active=True).order_by('-updated_at')
         serializer = StockSerializer(item, many=True)
         return Response(serializer.data)
     

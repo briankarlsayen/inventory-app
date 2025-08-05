@@ -5,8 +5,8 @@ import bcrypt
 class Category(Document):
     name = StringField(required=True, max_length=255)
     is_active = BooleanField(default=True)
-    created_at = DateTimeField(default=datetime.now(timezone.utc))
-    updated_at = DateTimeField(default=datetime.now(timezone.utc))
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
 
     def save(self, *args, **kwargs):
         self.updated_at = datetime.now(timezone.utc)
@@ -43,6 +43,7 @@ class User(Document):
         """Verify the password."""
         return bcrypt.checkpw(raw_password.encode('utf-8'), self.password.encode('utf-8'))
 
+# TODO fix updated_at, auto change when document is updated
 class Stock(Document):
     type=StringField(required=True, max_length=10, default="entry") # entry | usage
     item = ReferenceField(Item, required=True)
@@ -50,9 +51,9 @@ class Stock(Document):
     remarks = StringField(required=False, max_length=255)
     usage_type = StringField(required=False, max_length=50) # sale | waste | internal use
     is_active=BooleanField(default=True)
-    date = DateTimeField(default=datetime.now(timezone.utc))
-    created_at = DateTimeField(default=datetime.now(timezone.utc))
-    updated_at = DateTimeField(default=datetime.now(timezone.utc))
+    date = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
 
 class Logs(Document):
     method = StringField(required=True, max_length=10)
@@ -62,6 +63,6 @@ class Logs(Document):
     remote_addr = StringField()
     status_code = IntField()
     response_body = StringField()
-    started_at = DateTimeField(default=datetime.now(timezone.utc))
+    started_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     finished_at = DateTimeField()
     duration_ms = FloatField()
