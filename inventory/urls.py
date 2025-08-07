@@ -1,4 +1,4 @@
-from .views import CategoryListCreate, CategoryDetails, ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails
+from .views import CategoryListCreate, CategoryDetails, ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails, ProductListCreate, ProductDetails, OrderListCreate, OrderDetails
 from django.urls import path
 
 
@@ -17,4 +17,10 @@ urlpatterns = [
 
     path('stock/', StockListCreate.as_view(), name='stock-list-create'),
     path('stock/<str:pk>', StockDetails.as_view(), name='stock-details'),
+
+    path('product/', ProductListCreate.as_view(), name='product-list-create'),
+    path('product/<str:pk>', ProductDetails.as_view(), name='product-details'),
+
+    path('order/', OrderListCreate.as_view(), name='order-list-create'),
+    path('order/<str:pk>', OrderDetails.as_view(), name='order-details'),
 ]

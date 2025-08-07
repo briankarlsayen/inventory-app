@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField, BooleanField, DateTimeField, ReferenceField, FloatField
+from mongoengine import Document, EmbeddedDocument, fields, EmbeddedDocumentListField, StringField, IntField, BooleanField, DateTimeField, ReferenceField, FloatField, CASCADE
 from datetime import datetime, timezone
 import bcrypt
 
@@ -43,7 +43,6 @@ class User(Document):
         """Verify the password."""
         return bcrypt.checkpw(raw_password.encode('utf-8'), self.password.encode('utf-8'))
 
-# TODO fix updated_at, auto change when document is updated
 class Stock(Document):
     type=StringField(required=True, max_length=10, default="entry") # entry | usage
     item = ReferenceField(Item, required=True)
@@ -66,3 +65,38 @@ class Logs(Document):
     started_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     finished_at = DateTimeField()
     duration_ms = FloatField()
+
+class Product(Document):
+    name = StringField(required=True, max_length=255)
+    description = StringField(max_length=255)
+    price = FloatField(required=True)
+    type = StringField(required=True, choices=["drink", "pastry", "others"]) # drink | pastry | others
+    size = StringField(required=False, choices=['8oz', '12oz', '16oz', '']) # 8oz | 12oz | 16oz
+    is_active=BooleanField(default=True)
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+
+class Discount(Document):
+    value = FloatField(required=True)
+    note = StringField(max_length=255)
+    type = StringField(required=True, choices=["fixed", "percentage"])
+
+class Adjustment(Document):
+    value = FloatField(required=True)
+    note = StringField(max_length=255)
+
+class OrderedProduct(EmbeddedDocument):
+    product = ReferenceField(Product, required=True, )
+    quantity = IntField(required=True, min_value=1)
+    purchase_price = FloatField(required=True, min_value=0)
+
+class Order(Document):
+    products = EmbeddedDocumentListField(OrderedProduct, required=True, )
+    total_amount = FloatField(required=True, min_value=0)
+    payment_type = StringField(required=True, choices=["cash", "gcash", "card"]) # cash | gcash | card
+    processed_by = ReferenceField(User, required=True, )
+    discount = ReferenceField(Discount, null=True)
+    adjustment = ReferenceField(Adjustment, )
+    is_active=BooleanField(default=True)
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
