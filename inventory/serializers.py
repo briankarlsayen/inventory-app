@@ -9,7 +9,17 @@ class CategorySerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
+    def validate_name(self, value):
+        # For create (self.instance is None)
+        if not self.instance and Category.objects(name__iexact=value).first():
+            raise serializers.ValidationError("Category name already exists.")
+        # For update (self.instance exists, so exclude it from the check)
+        if self.instance and Category.objects(name__iexact=value, id__ne=self.instance.id).first():
+            raise serializers.ValidationError("Category name already exists.")
+        return value
+
     def create(self, validated_data):
+        print('will this run?', validated_data)
         return Category(**validated_data).save()
     
     def update(self, instance, validated_data):
@@ -33,6 +43,14 @@ class ItemSerializer(serializers.Serializer):
     is_shown = serializers.BooleanField(required=False, default=True)
     is_active = serializers.BooleanField(required=False, default=True)
 
+    def validate_name(self, value):
+        # For create (self.instance is None)
+        if not self.instance and Item.objects(name__iexact=value).first():
+            raise serializers.ValidationError("Item name already exists.")
+        # For update (self.instance exists, so exclude it from the check)
+        if self.instance and Item.objects(name__iexact=value, id__ne=self.instance.id).first():
+            raise serializers.ValidationError("Item name already exists.")
+        return value
 
     def to_representation(self, instance):
         """Customize the output to include nested category details."""

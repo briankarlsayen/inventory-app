@@ -1,8 +1,8 @@
 TODO
 [x] add middleware jwt auth on apis
 
-[ ] validation on stock item name duplicate
-[ ] validation on category name duplicate
+[x] validation on stock item name duplicate
+[x] validation on category name duplicate
 [x] updated_at should change when updating data
 
 [x] order CRUD
