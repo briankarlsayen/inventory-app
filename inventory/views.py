@@ -5,7 +5,7 @@ from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializ
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -177,7 +177,10 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginView(APIView):
+    authentication_classes = []  # Disable token auth
+    permission_classes = [AllowAny] 
     def post(self, request):
+        print('login mo to')
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

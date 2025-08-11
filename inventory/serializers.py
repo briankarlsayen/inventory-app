@@ -201,6 +201,8 @@ class AdjustmentSerializer(serializers.Serializer):
 class ProductDisplaySerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(read_only=True)
+    size = serializers.CharField(read_only=True)
+    price = serializers.FloatField(read_only=True)
 
 class OrderedProductSerializer(serializers.Serializer):
     product = serializers.CharField(required=True, write_only=True)
@@ -235,6 +237,7 @@ class OrderSerializer(serializers.Serializer):
     adjustment_details = serializers.DictField(required=False, child=serializers.CharField(), write_only=True)
     adjustment = serializers.CharField(required=False, write_only=True)
     is_active = serializers.BooleanField(required=False, default=True)
+    date = serializers.DateTimeField()
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 

@@ -98,5 +98,6 @@ class Order(Document):
     discount = ReferenceField(Discount, null=True)
     adjustment = ReferenceField(Adjustment, )
     is_active=BooleanField(default=True)
+    date = DateTimeField(default=lambda: datetime.now(timezone.utc))
     created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
