@@ -6,7 +6,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
+from bson import ObjectId
+from datetime import datetime, timedelta
+import calendar
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -358,3 +360,71 @@ class OrderDetails(APIView):
         item.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class DashboardView(APIView):
+    def get(self, request):
+        total_sales = sum(order.total_amount for order in Order.objects(is_active=True))
+
+        now = datetime.now()
+        start_of_week = now - timedelta(days=now.weekday())  # Monday
+        start_of_year = datetime(now.year, 1, 1)
+
+        week_count = Order.objects(date__gte=start_of_week, is_active = True).count()
+        year_count = Order.objects(date__gte=start_of_year, is_active = True).count()
+
+        weekly_sales = {}
+        for order in Order.objects(date__gte=start_of_week, is_active = True):
+            for p in order.products:
+                prod_id = str(p.product.id)
+                weekly_sales[prod_id] = weekly_sales.get(prod_id, 0) + p.quantity
+
+        yearly_sales = {}
+        for order in Order.objects(date__gte=start_of_year, is_active = True):
+            for p in order.products:
+                prod_id = str(p.product.id)
+                yearly_sales[prod_id] = yearly_sales.get(prod_id, 0) + p.quantity
+
+        product_ids = set(list(weekly_sales.keys()) + list(yearly_sales.keys()))
+
+        products_map = {
+            str(prod.id): {
+                "name": prod.name,
+                "size": prod.size,
+                "type": prod.type
+            }
+            for prod in Product.objects(id__in=product_ids)
+        }
+
+
+        weekly_top_products = [
+            {
+                "product": pid,
+                "name": products_map.get(pid, {}).get("name", "Unknown"),
+                "size": products_map.get(pid, {}).get("size", None),
+                "type": products_map.get(pid, {}).get("type", None),
+                "quantity": qty
+
+            }
+            for pid, qty in sorted(weekly_sales.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+        yearly_top_products = [
+            {
+                "product": pid,
+                "name": products_map.get(pid, {}).get("name", "Unknown"),
+                "size": products_map.get(pid, {}).get("size", None),
+                "type": products_map.get(pid, {}).get("type", None),
+                "quantity": qty
+            }
+            for pid, qty in sorted(yearly_sales.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+        return Response({ 
+            "total_sales": total_sales,
+            "orderCount": {
+                "week": week_count,
+                "year": year_count
+            },
+            "topProducts": {
+                "week": weekly_top_products,
+                "year": yearly_top_products
+            }}, status=status.HTTP_200_OK)        
