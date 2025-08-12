@@ -19,7 +19,6 @@ class CategorySerializer(serializers.Serializer):
         return value
 
     def create(self, validated_data):
-        print('will this run?', validated_data)
         return Category(**validated_data).save()
     
     def update(self, instance, validated_data):

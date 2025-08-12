@@ -17,9 +17,9 @@ TODO
 ---[x] update
 ---[x] delete
 
-[ ] dashboard APIS
----[ ] total sales
----[ ] top product
----[ ] sales per time( by count and product)
------[ ] per week
------[ ] per year
+[x] dashboard APIS
+---[x] total sales
+---[x] top product
+---[x] sales per time( by count and product)
+-----[x] per week
+-----[x] per year

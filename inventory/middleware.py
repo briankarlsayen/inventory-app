@@ -6,7 +6,6 @@ from django.utils.timezone import now
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class RequestLoggingMiddleware(MiddlewareMixin):
-    print('req ths!')
     def process_request(self, request):
         if request.method.upper() == "GET":
             request._skip_logging = True
@@ -59,7 +58,6 @@ class RequestLoggingMiddleware(MiddlewareMixin):
 class CustomJWTAuthentication(JWTAuthentication):
     def get_user(self, validated_token):
         user_id = validated_token.get('user_id')
-        print('is logging?')
 
         try:
             # Use this if you use MongoEngine or ObjectId string keys

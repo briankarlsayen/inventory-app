@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from bson import ObjectId
 from datetime import datetime, timedelta
 import calendar
+from collections import defaultdict
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -182,7 +183,6 @@ class LoginView(APIView):
     authentication_classes = []  # Disable token auth
     permission_classes = [AllowAny] 
     def post(self, request):
-        print('login mo to')
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -365,11 +365,9 @@ class DashboardView(APIView):
         total_sales = sum(order.total_amount for order in Order.objects(is_active=True))
 
         now = datetime.now()
-        start_of_week = now - timedelta(days=now.weekday())  # Monday
+        start_of_week = now - timedelta(days=now.weekday())# Monday
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
         start_of_year = datetime(now.year, 1, 1)
-
-        week_count = Order.objects(date__gte=start_of_week, is_active = True).count()
-        year_count = Order.objects(date__gte=start_of_year, is_active = True).count()
 
         weekly_sales = {}
         for order in Order.objects(date__gte=start_of_week, is_active = True):
@@ -418,13 +416,45 @@ class DashboardView(APIView):
             for pid, qty in sorted(yearly_sales.items(), key=lambda x: x[1], reverse=True)
         ]
 
+
+               # --- Group orders by date for weekly stats ---
+        weekly_orders = defaultdict(int)
+        for order in Order.objects(date__gte=start_of_week, is_active = True):
+            date_str = order.date.strftime("%Y-%m-%d")
+            weekly_orders[date_str] += 1
+
+        # Fill missing days with 0
+        weekly_data = []
+        for i in range(7):
+            day = start_of_week + timedelta(days=i)
+            day_str = day.strftime("%Y-%m-%d")
+            weekly_data.append({
+                "date": day_str,
+                "count": weekly_orders.get(day_str, 0)
+            })
+
+         # --- Group orders by month for yearly stats ---
+        yearly_orders = defaultdict(int)
+        for order in Order.objects(date__gte=start_of_year, is_active = True):
+            month_str = order.date.strftime("%Y-%m")
+            yearly_orders[month_str] += 1
+
+        # Fill missing months with 0
+        yearly_data = []
+        for m in range(1, 13):
+            month_str = f"{now.year}-{m:02d}"
+            yearly_data.append({
+                "date": month_str,
+                "count": yearly_orders.get(month_str, 0)
+            })
+
         return Response({ 
             "total_sales": total_sales,
-            "orderCount": {
-                "week": week_count,
-                "year": year_count
+            "order": {
+                "week": weekly_data,
+                "year": yearly_data
             },
-            "topProducts": {
+            "top_products": {
                 "week": weekly_top_products,
                 "year": yearly_top_products
             }}, status=status.HTTP_200_OK)        
