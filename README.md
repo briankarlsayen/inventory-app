@@ -23,3 +23,6 @@ TODO
 ---[x] sales per time( by count and product)
 -----[x] per week
 -----[x] per year
+
+[x] apply refresh token functionality
+[x] apply env

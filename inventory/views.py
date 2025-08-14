@@ -4,7 +4,7 @@ from .models import Category, Item, User, Stock, Product, Discount, Adjustment, 
 from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer, ProductSerializer, OrderSerializer, Discount, Adjustment
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from bson import ObjectId
 from datetime import datetime, timedelta
@@ -198,9 +198,31 @@ class LoginView(APIView):
             }
             # login_data (refresh).data
             # user_data = UserDisplaySerializer(user).data
-            return Response({'message': 'Login successful', 'access': login_data['access'], 'refresh': login_data['refresh']}, status=status.HTTP_200_OK)
+
+            response = Response({'message': 'Login successful', 'access': login_data['access'], 'refresh': login_data['refresh']}, status=status.HTTP_200_OK)
+            return response
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
     
+class CustomRefreshToken(APIView):
+    def post(self, request):
+
+        refresh_token = request.data.get("refresh")
+
+        if not refresh_token:
+            return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Validate refresh token
+            refresh = RefreshToken(refresh_token)
+
+            # Create new access token
+            new_access = str(refresh.access_token)
+
+            return Response({"access": new_access}, status=status.HTTP_200_OK)
+
+        except TokenError:
+            return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
+
 class StockListCreate(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -1,4 +1,4 @@
-from .views import CategoryListCreate, CategoryDetails, ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails, ProductListCreate, ProductDetails, OrderListCreate, OrderDetails, DashboardView
+from .views import CategoryListCreate, CategoryDetails, ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails, ProductListCreate, ProductDetails, OrderListCreate, OrderDetails, DashboardView, CustomRefreshToken
 from django.urls import path
 
 
@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/refresh/', CustomRefreshToken.as_view(), name='refresh'),
 
     path('stock/', StockListCreate.as_view(), name='stock-list-create'),
     path('stock/<str:pk>', StockDetails.as_view(), name='stock-details'),
