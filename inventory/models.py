@@ -24,7 +24,7 @@ class User(Document):
     name = StringField(required=True, max_length=255)
     username = StringField(required=True, max_length=255)
     password = StringField(required=True, max_length=255)
-    role = IntField(default=2, choices=[1,2])
+    role = IntField(default=2, choices=[1,2]) # 1 - super admin | 2 - admin
     is_active = BooleanField(default=True)
 
     def __str__(self):
