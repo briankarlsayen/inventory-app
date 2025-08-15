@@ -65,6 +65,7 @@ ROOT_URLCONF = 'inventory_app.urls'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React
+    "https://inventory-app-fe-orpin.vercel.app"
 #    "https://yourfrontend.com",
 ]
 
