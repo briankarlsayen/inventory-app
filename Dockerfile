@@ -1,21 +1,14 @@
-ARG PYTHON_VERSION=3.10-slim
+FROM python:3.11-slim
 
-FROM python:${PYTHON_VERSION}
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+WORKDIR /app
 
-RUN mkdir -p /code
+COPY requirements.txt .
+COPY .env .
+RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /code
+COPY . .
 
-COPY requirements.txt /tmp/requirements.txt
-RUN set -ex && \
-    pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt && \
-    rm -rf /root/.cache/
-COPY . /code
-
-EXPOSE 8000
-
-CMD ["gunicorn","--bind",":8000","--workers","2","inventory_app.wsgi"]
+CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
