@@ -1,82 +1,18 @@
-from django.shortcuts import render
-from rest_framework import viewsets, status
-from .models import Category, Item, User, Stock, Product, Discount, Adjustment, Order
-from .serializers import CategorySerializer, ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer, ProductSerializer, OrderSerializer, Discount, Adjustment
+from rest_framework import status
+from .models import  Item, User, Stock, Product, Discount, Adjustment, Order
+from .serializers import  ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer, ProductSerializer, OrderSerializer, Discount, Adjustment
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from bson import ObjectId
 from datetime import datetime, timedelta
-import calendar
 from collections import defaultdict
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-    def get_queryset(self):
-        return Category.objects.all()
-    
-
-class CategoryListCreate(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        category = Category.objects(is_active = True)
-        serializer = CategorySerializer(category, many=True)
-        return Response(serializer.data)
-    
-    def post(self, request):
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class CategoryDetails(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self, pk):
-        try:
-            return Category.objects.get(id=pk)
-        except Category.DoesNotExist:
-            return None
-        except:
-            return None
-
-    def get(self, request, pk):
-        category = self.get_object(pk)
-        if not category:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CategorySerializer(category)
-        return Response(serializer.data)
-    
-    def put(self, request, pk):
-        category = self.get_object(pk)
-        if not category:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = CategorySerializer(category, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def delete(self, request, pk):
-        category = self.get_object(pk)
-        if not category:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        category.is_active = False
-        category.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
 
 class ItemListCreate(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        item = Item.objects(is_active=True)
+        item = Item.objects(is_active=True).order_by('-id')
         serializer = ItemSerializer(item, many=True)
         return Response(serializer.data)
     
@@ -201,7 +137,8 @@ class LoginView(APIView):
 
             response = Response({'message': 'Login successful', 'access': login_data['access'], 'refresh': login_data['refresh']}, status=status.HTTP_200_OK)
             return response
-        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY) # 401 for jwt error only   
+        # return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)        
     
 class CustomRefreshToken(APIView):
     def post(self, request):

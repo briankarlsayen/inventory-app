@@ -26,3 +26,9 @@ TODO
 
 [x] apply refresh token functionality
 [x] apply env
+
+ENCHANCEMENTS
+[x] make category a text string
+[?] display stock levels
+[x] loading screen ?
+[x] product description optional

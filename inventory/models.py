@@ -1,20 +1,10 @@
-from mongoengine import Document, EmbeddedDocument, fields, EmbeddedDocumentListField, StringField, IntField, BooleanField, DateTimeField, ReferenceField, FloatField, CASCADE
+from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentListField, StringField, IntField, BooleanField, DateTimeField, ReferenceField, FloatField
 from datetime import datetime, timezone
 import bcrypt
 
-class Category(Document):
-    name = StringField(required=True, max_length=255)
-    is_active = BooleanField(default=True)
-    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
-    updated_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
-
-    def save(self, *args, **kwargs):
-        self.updated_at = datetime.now(timezone.utc)
-        return super().save(*args, **kwargs)
-    
 class Item(Document):
     name = StringField(required=True, max_length=255)
-    category = ReferenceField(Category, required=True)
+    category = StringField(max_length=50)
     unit = StringField(max_length=50)
     reorder_level = IntField(default=0)
     is_shown = BooleanField(default=True)

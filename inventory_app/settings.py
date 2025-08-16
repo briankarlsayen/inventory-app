@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['inventory-app-evnr.onrender.com']
+ALLOWED_HOSTS = ['inventory-app-evnr.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -66,7 +66,6 @@ ROOT_URLCONF = 'inventory_app.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React
     "https://inventory-app-fe-orpin.vercel.app"
-#    "https://yourfrontend.com",
 ]
 
 
