@@ -32,3 +32,6 @@ ENCHANCEMENTS
 [?] display stock levels
 [x] loading screen ?
 [x] product description optional
+
+Guest account
+guest | guest123456

@@ -54,7 +54,7 @@ class RegisterSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
-    role = serializers.ChoiceField(default=2, choices=[1,2])
+    role = serializers.ChoiceField(default=2, choices=[1,2, 3])
 
     def create(self, validated_data):
         raw_password = validated_data.pop('password')

@@ -4,6 +4,8 @@ from django.utils.deprecation import MiddlewareMixin
 from .models import Logs, User
 from django.utils.timezone import now
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.http import JsonResponse
+from rest_framework.permissions import BasePermission
 
 class RequestLoggingMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -64,3 +66,20 @@ class CustomJWTAuthentication(JWTAuthentication):
             return User.objects.get(id=str(user_id))
         except User.DoesNotExist:
             return None
+
+class RoleBasedMethodPermission(BasePermission):
+    # Let's assume roles: 1=SuperAdmin, 2=Admin, 3=Guest
+    RESTRICTED_METHODS = {
+        3: ["POST", "PUT", "DELETE"],  # guest cannot modify
+        # role 1 & 2 (admin) has no restrictions
+    }
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False  # or True if you allow anonymous access
+
+        role = getattr(request.user, "role", None)
+        restricted = self.RESTRICTED_METHODS.get(role, [])
+        if request.method in restricted:
+            return False
+        return True

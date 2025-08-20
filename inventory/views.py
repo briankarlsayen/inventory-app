@@ -7,10 +7,11 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from datetime import datetime, timedelta
 from collections import defaultdict
+from .middleware import RoleBasedMethodPermission
 
 class ItemListCreate(APIView):
-    permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
+    
     def get(self, request):
         item = Item.objects(is_active=True).order_by('-id')
         serializer = ItemSerializer(item, many=True)
@@ -24,7 +25,7 @@ class ItemListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ItemDetails(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get_object(self, pk):
         try:
@@ -68,7 +69,7 @@ class UserList(APIView):
         return Response(serializer.data)
     
 class UserDetail(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get_object(self, pk):
         try:
@@ -128,6 +129,7 @@ class LoginView(APIView):
         user = User.objects(username=username, is_active=True).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
+            refresh['role'] = user.role
             login_data = {
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
@@ -161,7 +163,7 @@ class CustomRefreshToken(APIView):
             return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class StockListCreate(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get(self, request):
         item = Stock.objects(is_active=True).order_by('-updated_at')
@@ -177,7 +179,7 @@ class StockListCreate(APIView):
     
 
 class StockDetails(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get_object(self, pk):
         try:
@@ -214,7 +216,7 @@ class StockDetails(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ProductListCreate(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get(self, request):
         item = Product.objects(is_active=True).order_by('-updated_at')
@@ -230,7 +232,7 @@ class ProductListCreate(APIView):
     
 class ProductDetails(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
     
     def get_object(self, pk):
         try:
@@ -267,7 +269,7 @@ class ProductDetails(APIView):
     
 
 class OrderListCreate(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
 
     def get(self, request):
         item = Order.objects(is_active=True).order_by('-updated_at')
@@ -283,7 +285,7 @@ class OrderListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class OrderDetails(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
     
     def get_object(self, pk):
         try:
@@ -320,6 +322,8 @@ class OrderDetails(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class DashboardView(APIView):
+    permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
+
     def get(self, request):
         total_sales = sum(order.total_amount for order in Order.objects(is_active=True))
 
@@ -417,3 +421,4 @@ class DashboardView(APIView):
                 "week": weekly_top_products,
                 "year": yearly_top_products
             }}, status=status.HTTP_200_OK)        
+    
