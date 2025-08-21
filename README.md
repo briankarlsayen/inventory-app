@@ -34,4 +34,4 @@ ENCHANCEMENTS
 [x] product description optional
 
 Guest account
-guest | guest123456
+guest | guest@123456

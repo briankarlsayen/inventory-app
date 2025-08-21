@@ -280,3 +280,10 @@ class OrderSerializer(serializers.Serializer):
 
         instance.save()
         return instance
+    
+class EncryptionSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+class DecryptionSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)

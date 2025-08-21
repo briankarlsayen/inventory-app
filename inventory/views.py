@@ -1,6 +1,6 @@
 from rest_framework import status
 from .models import  Item, User, Stock, Product, Discount, Adjustment, Order
-from .serializers import  ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer, ProductSerializer, OrderSerializer, Discount, Adjustment
+from .serializers import  ItemSerializer, UserDisplaySerializer, UserSerializer, RegisterSerializer, LoginSerializer, StockSerializer, ProductSerializer, OrderSerializer, Discount, Adjustment, EncryptionSerializer, DecryptionSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from datetime import datetime, timedelta
 from collections import defaultdict
 from .middleware import RoleBasedMethodPermission
-
+from .utils import encryption
 class ItemListCreate(APIView):
     permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
     
@@ -422,3 +422,28 @@ class DashboardView(APIView):
                 "year": yearly_top_products
             }}, status=status.HTTP_200_OK)        
     
+class LoginURLEncryption(APIView):
+    def post(self, request):
+        serializer = EncryptionSerializer(data=request.data)
+        if serializer.is_valid():
+            # try to login credetials
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            user = User.objects(username=username, is_active=True).first()
+            if user and user.check_password(password):
+                token = encryption.encrypt_credentials(serializer.data)
+                if not token:
+                    return Response({'error': 'Invalid username or password'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY) 
+                return Response({"token": token}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid username or password'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class LoginURLDecryption(APIView):
+    def post(self, request):
+        serializer = DecryptionSerializer(data=request.data)
+        if serializer.is_valid():
+            data = encryption.decrypt_credentials(serializer.data['token'])
+            if data:
+                return Response(data, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
