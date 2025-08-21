@@ -1,5 +1,7 @@
 asgiref==3.9.0
 bcrypt==4.3.0
+cffi==1.17.1
+cryptography==45.0.6
 dataclasses==0.6
 Django==5.2.4
 django-cors-headers==4.7.0
@@ -9,6 +11,7 @@ djongo==1.2.31
 dnspython==2.7.0
 dotenv==0.9.9
 mongoengine==0.29.1
+pycparser==2.22
 PyJWT==2.10.1
 pymongo==4.13.2
 python-dotenv==1.1.1
