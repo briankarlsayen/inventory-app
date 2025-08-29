@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from .middleware import RoleBasedMethodPermission
 from .utils import encryption
+import time
+
 class ItemListCreate(APIView):
     permission_classes = [IsAuthenticated, RoleBasedMethodPermission]
     
@@ -447,3 +449,7 @@ class LoginURLDecryption(APIView):
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class Checker(APIView):
+    def get(self, request):
+        return Response(status=status.HTTP_200_OK)

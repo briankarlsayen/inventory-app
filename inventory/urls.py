@@ -1,4 +1,4 @@
-from .views import ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails, ProductListCreate, ProductDetails, OrderListCreate, OrderDetails, DashboardView, CustomRefreshToken, LoginURLEncryption, LoginURLDecryption
+from .views import ItemListCreate, ItemDetails, UserList, UserDetail, RegisterView, LoginView, StockListCreate, StockDetails, ProductListCreate, ProductDetails, OrderListCreate, OrderDetails, DashboardView, CustomRefreshToken, LoginURLEncryption, LoginURLDecryption, Checker
 from django.urls import path
 
 
@@ -26,5 +26,7 @@ urlpatterns = [
 
     path('auth/login-encrypt/', LoginURLEncryption.as_view(), name='login-encrypt'),
     path('auth/login-decrypt/', LoginURLDecryption.as_view(), name='login-decrypt'),
+
+    path('checker/', Checker.as_view(), name='checker'),
 
 ]
