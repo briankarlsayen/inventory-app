@@ -1,37 +1,25 @@
-TODO
-[x] add middleware jwt auth on apis
+# Inventory Backend
 
-[x] validation on stock item name duplicate
-[x] validation on category name duplicate
-[x] updated_at should change when updating data
+Manage your inventory and track sales effortlessly with our powerful web application. Monitor stock levels, record transactions, and generate real-time reports to streamline your business operations. Simple, efficient, and accessible from anywhere, it’s the ultimate tool to keep your business organized and profitable.
 
-[x] order CRUD
----[x] create
----[x] get
----[x] update
----[x] delete
+## Installation
 
-[x] product CRUD
----[x] create
----[x] get
----[x] update
----[x] delete
+#### Clone repository
 
-[x] dashboard APIS
----[x] total sales
----[x] top product
----[x] sales per time( by count and product)
------[x] per week
------[x] per year
+#### Install dependencies
 
-[x] apply refresh token functionality
-[x] apply env
+```
+pip install --no-cache-dir -r requirements.txt
+```
 
-ENCHANCEMENTS
-[x] make category a text string
-[?] display stock levels
-[x] loading screen ?
-[x] product description optional
+#### Copy .env file
 
-Guest account
-guest | guest@123456
+```
+cp .env.example .env
+```
+
+#### Start application
+
+```
+python manage.py runserver
+```
